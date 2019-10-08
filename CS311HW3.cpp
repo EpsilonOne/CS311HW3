@@ -62,15 +62,15 @@ public:
 	void insert(int occurT, int eventT)
 	{
 		EventNode* newNode;
-		EventNode* nodePtr = head;
-		EventNode* prevNode = head;
+		EventNode* nodePtr;
+		EventNode* prevNode;
 
 		newNode = new EventNode; //create node
 		//set attributes
 		newNode->occurTime = occurT;
 		newNode->type = eventT;
 
-		if (!head)//if list empty insert at beg
+		if (isEmpty())//if list empty insert at beg
 		{
 			head = newNode;
 			newNode->next = NULL;
@@ -78,7 +78,8 @@ public:
 
 		else // traverse the list and find place
 		{
-			
+			nodePtr = head;
+			prevNode = head;
 			//while loop to get to node before node thatis after pName
 			while (nodePtr != NULL && nodePtr->occurTime < occurT)
 			{
@@ -178,7 +179,6 @@ public:
 
 	void enqueue(int aT, int sT)
 	{
-		cout << "Enqueueing\n";
 		CustomerNode* newNode;
 		newNode = new CustomerNode;
 		newNode->arrivalTime = aT;
@@ -244,6 +244,7 @@ public:
 	}
 };
 
+//function compares counts of queues and returns smallest
 int getSmallestQueue(int q1, int q2, int q3, int q4)
 {
 	int smallest = q1;
@@ -266,74 +267,139 @@ int getSmallestQueue(int q1, int q2, int q3, int q4)
 
 int main()
 {
-	srand(time(0));
-	TellerQueue w1, w2, w3, w4;
-	EventList ev;
-	int arrNextCust = 0;
-	int serveTimeCurrCust = 0;
+	srand(time(0)); //seed for rand()
+	TellerQueue w1, w2, w3, w4;//4 queues
+	EventList ev; //Event list
+	int arrNextCust = 0;//arrival of next cust
+	int serveTimeCurrCust = 0;//service time
 	int numCustomers = 0;
 	int currentTime = 0;
 	int waitTime = 0;
+	int deqArrTime;
+	int deqServTime;
 
-	ev.append(0, 0);
+	cout << "Initializing EventList\n";
+	ev.append(0, 0); //Initialize event list
+	ev.print();
 
-	while (!ev.isEmpty())
+	while (!ev.isEmpty()) //While ev is not empty
 	{
-		int tempOccurT;
-		int tempType;
+		int tempOccurT;//to hold current event occur time 
+		int tempType;//to hold current event type
 
-		ev.removeFrontEvent(tempOccurT, tempType);
+		
+		ev.removeFrontEvent(tempOccurT, tempType);//remove event from front of event list
+		currentTime = tempOccurT;
 
-		if (tempType == 0)
+		if (tempType == 0)//if event is arrival
 		{
-			numCustomers += 1;
-			serveTimeCurrCust = rand() % 1200 + 1;
-			arrNextCust = currentTime + (rand() % 300 + 1);
-			currentTime = arrNextCust;
-			if (arrNextCust <= 28800)
+			numCustomers += 1;//increase customer count by 1
+			serveTimeCurrCust = rand() % 1200 + 1;//random service time of current cust <= 20 min
+			arrNextCust = currentTime + (rand() % 300 + 1); //randon interval time of next cust arrival <= 5 min
+			//currentTime = arrNextCust;//update current time to arrival of next customer
+			if (arrNextCust <= 28800)//if next cust arrives while bank open create arrival event for new cust
 			{
+				cout << " Inserting Arrival to EventList\n";
 				ev.insert(arrNextCust, 0);
+				ev.print();
 			}
+
+			//call function to get smallest queue 
 			int smallestQ = getSmallestQueue(w1.count, w2.count, w3.count, w4.count);
-			//cout << "Smallest Q is: " << smallestQ << endl;
+
+			//if stmnts to insert current cust into smallest line
+			//if that line is empty create departure event for that cust and put in event list
 			if (smallestQ == 1)
 			{
+				cout << "Enqueueing to W1\n";
 				w1.enqueue(tempOccurT, serveTimeCurrCust);
-				if (w1.count == 0)
+				if (w1.count == 1)
 				{
+					cout << "w1 avail, Inserting departure w1 to EventList\n";
 					ev.insert(arrNextCust, 1);
 				}
 			}
 			else if (smallestQ == 2)
 			{
+				cout << "Enqueueing to W2\n";
 				w2.enqueue(tempOccurT, serveTimeCurrCust);
-				if (w2.count == 0)
+				if (w2.count == 1)
 				{
+					cout << "w2 available, Inserting departure w2 to EventList\n";
 					ev.insert(arrNextCust, 2);
 				}
 			}
 			else if (smallestQ == 3)
 			{
+				cout << "Enqueueing to W3\n";
 				w3.enqueue(tempOccurT, serveTimeCurrCust);
-				if (w3.count == 0)
+				if (w3.count == 1)
 				{
+					cout << "w3 avail, Inserting departure w3 to EventList\n";
 					ev.insert(arrNextCust, 3);
 				}
 			}
 			else
 			{
+				cout << "Enqueueing to W4\n";
 				w4.enqueue(tempOccurT, serveTimeCurrCust);
-				if (w4.count == 0)
+				if (w4.count == 1)
 				{
+					cout << "w4 avail, Inserting departure w4 to EventList\n";
 					ev.insert(arrNextCust, 4);
 				}
 			}
 
 		}
-		else
+		else if (tempType == 1)//departure from first queue
 		{
-
+			cout << "dequeueing from w1\n";
+			w1.dequeue(deqArrTime, deqServTime);//dequeue from w1
+			waitTime += currentTime + deqServTime - deqArrTime;
+			if (!w1.isEmpty())
+			{
+				cout << "W1 !empty Inserting departure of next cust to EventList\n";
+				ev.insert(currentTime + w1.front->serviceTime, 1);
+			}
 		}
+		else if (tempType == 2)//departure from first queue
+		{
+			cout << "dequeueing from w2\n";
+			w2.dequeue(deqArrTime, deqServTime);//dequeue from w1
+			waitTime += currentTime + deqServTime - deqArrTime;
+			if (!w2.isEmpty())
+			{
+				cout << "W2 !empty Inserting departure of next cust to EventList\n";
+				ev.insert(currentTime + w2.front->serviceTime, 2);
+			}
+		}
+		else if (tempType == 3)//departure from first queue
+		{
+			cout << "dequeueing from w3\n";
+			w3.dequeue(deqArrTime, deqServTime);//dequeue from w1
+			waitTime += currentTime + deqServTime - deqArrTime;
+			if (!w3.isEmpty())
+			{
+				cout << "W3 !empty Inserting departure of next cust to EventList\n";
+				ev.insert(currentTime + w3.front->serviceTime, 3);
+			}
+		}
+		else if (tempType == 4)//departure from first queue
+		{
+			cout << "dequeueing from w4\n";
+			w4.dequeue(deqArrTime, deqServTime);//dequeue from w1
+			waitTime += currentTime + deqServTime - deqArrTime;
+			if (!w4.isEmpty())
+			{
+				cout << "W4 !empty Inserting departure of next cust to EventList\n";
+				ev.insert(currentTime + w4.front->serviceTime, 4);
+			}
+		}
+
 	}
+	
+	cout << "# of cust serverd = " << numCustomers
+		<< "\nTotal wait time = " << waitTime
+		<< "\nAverage wait time = " << waitTime / numCustomers << endl;
 	return 0;
 }
