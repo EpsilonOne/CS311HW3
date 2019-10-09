@@ -2,6 +2,8 @@
 Shane Ghuste
 004617897
 ghust001@cougars.csusm.edu
+
+Issues: Program only processes ~3 customers before errors, tried to debug but couldn't figure out the issue.
 */
 
 #include <iostream>
@@ -80,6 +82,7 @@ public:
 		{
 			nodePtr = head;
 			prevNode = head;
+			
 			//while loop to get to node before node thatis after pName
 			while (nodePtr != NULL && nodePtr->occurTime < occurT)
 			{
@@ -267,23 +270,17 @@ int getSmallestQueue(int q1, int q2, int q3, int q4)
 
 int main()
 {
-	srand(time(0)); //seed for rand()
+	srand((int)time(0)); //seed for rand()
 	TellerQueue w1, w2, w3, w4;//4 queues
 	EventList ev; //Event list
-	int arrNextCust = 0;//arrival of next cust
-	int serveTimeCurrCust = 0;//service time
+	unsigned int arrNextCust = 0;//arrival of next cust
+	unsigned int serveTimeCurrCust = 0;//service time
 	int numCustomers = 0;
 	int currentTime = 0;
 	int waitTime = 0;
 	int deqArrTime;
 	int deqServTime;
-	//ev.print();
-	//ev.insert(0, 0);
-	//ev.print();
-	//ev.insert(200, 0);
-	//ev.print();
-	//ev.insert(150, 2);
-	//ev.print();
+	
 	cout << "Initializing EventList\n";
 	ev.insert(0, 0); //Initialize event list
 	ev.print();
@@ -305,7 +302,8 @@ int main()
 			//currentTime = arrNextCust;//update current time to arrival of next customer
 			if (arrNextCust <= 28800)//if next cust arrives while bank open create arrival event for new cust
 			{
-				cout << " Inserting Arrival to EventList\n";
+				cout << " Inserting Arrival to EventList\n"
+					 << "Current Time: " << currentTime << endl;
 				ev.insert(arrNextCust, 0);
 				ev.print();
 			}
@@ -323,6 +321,7 @@ int main()
 				{
 					cout << "w1 avail, Inserting departure w1 to EventList\n";
 					ev.insert(currentTime + serveTimeCurrCust, 1);
+					ev.print();
 				}
 			}
 			else if (smallestQ == 2)
@@ -333,6 +332,7 @@ int main()
 				{
 					cout << "w2 available, Inserting departure w2 to EventList\n";
 					ev.insert(currentTime + serveTimeCurrCust, 2);
+					ev.print();
 				}
 			}
 			else if (smallestQ == 3)
@@ -343,6 +343,7 @@ int main()
 				{
 					cout << "w3 avail, Inserting departure w3 to EventList\n";
 					ev.insert(currentTime + serveTimeCurrCust, 3);
+					ev.print();
 				}
 			}
 			else
@@ -362,6 +363,7 @@ int main()
 			cout << "dequeueing from w1\n";
 			w1.dequeue(deqArrTime, deqServTime);//dequeue from w1
 			waitTime += currentTime + deqServTime - deqArrTime;
+			cout << "Wait time: " << waitTime << endl;
 			if (!w1.isEmpty())
 			{
 				cout << "W1 !empty Inserting departure of next cust to EventList\n";
@@ -373,6 +375,7 @@ int main()
 			cout << "dequeueing from w2\n";
 			w2.dequeue(deqArrTime, deqServTime);//dequeue from w1
 			waitTime += currentTime + deqServTime - deqArrTime;
+			cout << "Wait time: " << waitTime << endl;
 			if (!w2.isEmpty())
 			{
 				cout << "W2 !empty Inserting departure of next cust to EventList\n";
