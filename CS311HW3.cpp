@@ -69,7 +69,7 @@ public:
 		//set attributes
 		newNode->occurTime = occurT;
 		newNode->type = eventT;
-
+		cout << "Inserting to EventList keeping order of time\n";
 		if (isEmpty())//if list empty insert at beg
 		{
 			head = newNode;
@@ -277,9 +277,15 @@ int main()
 	int waitTime = 0;
 	int deqArrTime;
 	int deqServTime;
-
+	//ev.print();
+	//ev.insert(0, 0);
+	//ev.print();
+	//ev.insert(200, 0);
+	//ev.print();
+	//ev.insert(150, 2);
+	//ev.print();
 	cout << "Initializing EventList\n";
-	ev.append(0, 0); //Initialize event list
+	ev.insert(0, 0); //Initialize event list
 	ev.print();
 
 	while (!ev.isEmpty()) //While ev is not empty
@@ -316,7 +322,7 @@ int main()
 				if (w1.count == 1)
 				{
 					cout << "w1 avail, Inserting departure w1 to EventList\n";
-					ev.insert(arrNextCust, 1);
+					ev.insert(currentTime + serveTimeCurrCust, 1);
 				}
 			}
 			else if (smallestQ == 2)
@@ -326,7 +332,7 @@ int main()
 				if (w2.count == 1)
 				{
 					cout << "w2 available, Inserting departure w2 to EventList\n";
-					ev.insert(arrNextCust, 2);
+					ev.insert(currentTime + serveTimeCurrCust, 2);
 				}
 			}
 			else if (smallestQ == 3)
@@ -336,7 +342,7 @@ int main()
 				if (w3.count == 1)
 				{
 					cout << "w3 avail, Inserting departure w3 to EventList\n";
-					ev.insert(arrNextCust, 3);
+					ev.insert(currentTime + serveTimeCurrCust, 3);
 				}
 			}
 			else
@@ -346,7 +352,7 @@ int main()
 				if (w4.count == 1)
 				{
 					cout << "w4 avail, Inserting departure w4 to EventList\n";
-					ev.insert(arrNextCust, 4);
+					ev.insert(currentTime + serveTimeCurrCust, 4);
 				}
 			}
 
